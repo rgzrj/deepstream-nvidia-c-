@@ -103,6 +103,55 @@ git push -u origin main
 
 ---
 
+## 🚫 Push 常见错误及解决
+
+### 1. `src refspec main does not match any`
+
+```
+error: src refspec main does not match any
+error: failed to push some refs to '...'
+```
+
+**原因：** 还没有任何 commit，本地没有 `main` 分支。
+
+**解决：** 先执行 `git commit -m "first commit"`，再 push。
+
+### 2. `remote origin already exists`
+
+```
+error: remote origin already exists.
+```
+
+**原因：** 之前已经 `git remote add` 过了。
+
+**解决：** 不需要重复添加，直接 push 即可。如果想换地址：
+```bash
+git remote set-url origin <新地址>
+```
+
+### 3. `Recv failure: Connection was reset`
+
+```
+fatal: unable to access 'https://github.com/...': Recv failure: Connection was reset
+```
+
+**原因：** 网络连接被重置，通常是代理/VPN 问题，或者 GitHub 被墙。
+
+**解决办法（按顺序尝试）：**
+
+```bash
+# 方法1：检查并取消代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+
+# 方法2：使用 SSH 代替 HTTPS（推荐）
+git remote set-url origin git@github.com:rgzrj/deepstream-nvidia-c-.git
+
+# 方法3：开 VPN /  clash 代理后重试
+```
+
+---
+
 ## 🪟 Windows 下的 CRLF 警告
 
 在 Windows 上 `git add` 时常见大量 `LF will be replaced by CRLF` 警告，这是正常的，不影响功能。如果想消除警告，可以配置：
