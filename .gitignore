@@ -1,0 +1,4 @@
+build/ 
+.claude/ 
+.codex_tmp/ 
+.codex_tmp_latest_odt.txt 

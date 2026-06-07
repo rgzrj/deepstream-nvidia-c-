@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FD-LPD ONNX Neural Network Architecture - 简介版</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef2f7;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #dbe3ef;
+      --accent: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      padding: 24px 28px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    .sub { color: var(--muted); }
+    main { padding: 22px 28px 34px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .card b { display: block; font-size: 21px; }
+    .card span { color: var(--muted); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .diagram-wrap {
+      overflow: auto;
+      max-height: 76vh;
+      border-radius: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 680px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+    }
+    th {
+      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      color: #334155;
+      position: sticky;
+      top: 0;
+    }
+    .table-wrap { overflow: auto; max-height: 62vh; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    input {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font: inherit;
+    }
+    code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+    .links a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-right: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FD-LPD ONNX Neural Network Architecture</h1>
+    <div class="sub">模式：简介版 | 生成时间：2026-05-26 23:03:11 | 模型：<code>D:\python代码\工程\26.05.23\fd_lpd_model\fd_lpd.onnx</code></div>
+    <div class="links">
+      <a href="fd_lpd_architecture_simple.html">简介版</a>
+      <a href="fd_lpd_architecture_detailed.html">详细版</a>
+      <a href="fd_lpd_summary.md">Markdown 摘要</a>
+      <a href="fd_lpd_architecture.svg">SVG 图</a>
+    </div>
+  </header>
+  <main>
+    <section class="cards">
+      <div class="card"><b>88</b><span>ONNX 节点</span></div>
+      <div class="card"><b>7</b><span>Op 类型</span></div>
+      <div class="card"><b>1</b><span>输入</span></div>
+      <div class="card"><b>2</b><span>输出</span></div>
+      <div class="card"><b>164</b><span>权重 tensors</span></div>
+    </section>
+
+    <section class="panel">
+      <h2>网络架构图</h2>
+      <div class="diagram-wrap">
+        <svg class="arch-svg" xmlns="http://www.w3.org/2000/svg" width="1180" height="450" viewBox="0 0 1180 450" role="img">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L9,3 z" fill="#475569" />
+  </marker>
+</defs>
+<style>
+  .arch-svg { background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 10px; }
+  .node rect { stroke-width: 1.4; }
+  .node text { font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; fill: #0f172a; }
+  .input rect { fill: #dcfce7; stroke: #16a34a; }
+  .output rect { fill: #fee2e2; stroke: #dc2626; }
+  .op rect { fill: #e0f2fe; stroke: #0284c7; }
+  .shared rect { fill: #ede9fe; stroke: #7c3aed; }
+  .head rect { fill: #fef3c7; stroke: #d97706; }
+  .edge { fill: none; stroke: #475569; stroke-width: 1.5; marker-end: url(#arrow); opacity: 0.72; }
+</style>
+<g class="node input">
+<rect x="40.0" y="179.0" width="235.0" height="92.0" rx="8" ry="8"/>
+<text x="52.0" y="203.0"><tspan x="52.0" dy="0">INPUT</tspan><tspan x="52.0" dy="15">data</tspan><tspan x="52.0" dy="15">FLOAT[1x3x270x480]</tspan></text>
+</g>
+<g class="node shared">
+<rect x="330.0" y="179.0" width="235.0" height="92.0" rx="8" ry="8"/>
+<text x="342.0" y="203.0"><tspan x="342.0" dy="0">SHARED BACKBONE</tspan><tspan x="342.0" dy="15">78 nodes | Conv:26, BatchNormalization:26, Relu:18, Add:8</tspan><tspan x="342.0" dy="15">common ancestor nodes</tspan></text>
+</g>
+<path class="edge" d="M 275.0 225.0 C 302.5 225.0, 302.5 225.0, 330.0 225.0" />
+<g class="node head">
+<rect x="625.0" y="106.5" width="235.0" height="92.0" rx="8" ry="8"/>
+<text x="637.0" y="130.5"><tspan x="637.0" dy="0">BBOX HEAD</tspan><tspan x="637.0" dy="15">4 nodes | Conv:2, Identity:1, Concat:1</tspan><tspan x="637.0" dy="15">conv2d_bbox</tspan></text>
+</g>
+<g class="node output">
+<rect x="910.0" y="106.5" width="235.0" height="92.0" rx="8" ry="8"/>
+<text x="922.0" y="130.5"><tspan x="922.0" dy="0">OUTPUT</tspan><tspan x="922.0" dy="15">conv2d_bbox</tspan><tspan x="922.0" dy="15">FLOAT[1x16x17x30]</tspan></text>
+</g>
+<path class="edge" d="M 565.0 225.0 C 595.0 225.0, 595.0 152.5, 625.0 152.5" />
+<path class="edge" d="M 860.0 152.5 C 885.0 152.5, 885.0 152.5, 910.0 152.5" />
+<g class="node head">
+<rect x="625.0" y="251.5" width="235.0" height="92.0" rx="8" ry="8"/>
+<text x="637.0" y="275.5"><tspan x="637.0" dy="0">CONFIDENCE HEAD</tspan><tspan x="637.0" dy="15">6 nodes | Conv:2, Sigmoid:2, Concat:1, Identity:1</tspan><tspan x="637.0" dy="15">conv2d_cov/Sigmoid</tspan></text>
+</g>
+<g class="node output">
+<rect x="910.0" y="251.5" width="235.0" height="92.0" rx="8" ry="8"/>
+<text x="922.0" y="275.5"><tspan x="922.0" dy="0">OUTPUT</tspan><tspan x="922.0" dy="15">conv2d_cov/Sigmoid</tspan><tspan x="922.0" dy="15">FLOAT[1x4x17x30]</tspan></text>
+</g>
+<path class="edge" d="M 565.0 225.0 C 595.0 225.0, 595.0 297.5, 625.0 297.5" />
+<path class="edge" d="M 860.0 297.5 C 885.0 297.5, 885.0 297.5, 910.0 297.5" />
+</svg>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>输入</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Shape</th></tr></thead><tbody><tr><td>data</td><td>FLOAT[1x3x270x480]</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>输出</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Shape</th></tr></thead><tbody><tr><td>conv2d_bbox</td><td>FLOAT[1x16x17x30]</td></tr>
+<tr><td>conv2d_cov/Sigmoid</td><td>FLOAT[1x4x17x30]</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Op 统计</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Op Type</th><th>Count</th></tr></thead><tbody><tr><td>Conv</td><td>30</td></tr>
+<tr><td>BatchNormalization</td><td>26</td></tr>
+<tr><td>Relu</td><td>18</td></tr>
+<tr><td>Add</td><td>8</td></tr>
+<tr><td>Sigmoid</td><td>2</td></tr>
+<tr><td>Concat</td><td>2</td></tr>
+<tr><td>Identity</td><td>2</td></tr></tbody></table>
+      </div>
+    </section>
+
+    
+  </main>
+  <script>
+    function filterRows() {
+      const input = document.getElementById('nodeFilter');
+      const table = document.getElementById('nodeTable');
+      if (!input || !table) return;
+      const q = input.value.toLowerCase();
+      for (const row of table.tBodies[0].rows) {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      }
+    }
+  </script>
+</body>
+</html>

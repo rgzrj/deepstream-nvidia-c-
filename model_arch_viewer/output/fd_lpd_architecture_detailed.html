@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FD-LPD ONNX Neural Network Architecture - 详细版</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef2f7;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #dbe3ef;
+      --accent: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      padding: 24px 28px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    .sub { color: var(--muted); }
+    main { padding: 22px 28px 34px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .card b { display: block; font-size: 21px; }
+    .card span { color: var(--muted); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .diagram-wrap {
+      overflow: auto;
+      max-height: 76vh;
+      border-radius: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 680px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+    }
+    th {
+      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      color: #334155;
+      position: sticky;
+      top: 0;
+    }
+    .table-wrap { overflow: auto; max-height: 62vh; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    input {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font: inherit;
+    }
+    code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+    .links a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-right: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FD-LPD ONNX Neural Network Architecture</h1>
+    <div class="sub">模式：详细版 | 生成时间：2026-05-26 23:03:11 | 模型：<code>D:\python代码\工程\26.05.23\fd_lpd_model\fd_lpd.onnx</code></div>
+    <div class="links">
+      <a href="fd_lpd_architecture_simple.html">简介版</a>
+      <a href="fd_lpd_architecture_detailed.html">详细版</a>
+      <a href="fd_lpd_summary.md">Markdown 摘要</a>
+      <a href="fd_lpd_architecture.svg">SVG 图</a>
+    </div>
+  </header>
+  <main>
+    <section class="cards">
+      <div class="card"><b>88</b><span>ONNX 节点</span></div>
+      <div class="card"><b>7</b><span>Op 类型</span></div>
+      <div class="card"><b>1</b><span>输入</span></div>
+      <div class="card"><b>2</b><span>输出</span></div>
+      <div class="card"><b>164</b><span>权重 tensors</span></div>
+    </section>
+
+    <section class="panel">
+      <h2>网络架构图</h2>
+      <div class="diagram-wrap">
+        <svg class="arch-svg" xmlns="http://www.w3.org/2000/svg" width="10547" height="518" viewBox="0 0 10547 518" role="img">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,6 L9,3 z" fill="#475569" />
+  </marker>
+</defs>
+<style>
+  .arch-svg { background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 10px; }
+  .node rect { stroke-width: 1.4; }
+  .node text { font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; fill: #0f172a; }
+  .input rect { fill: #dcfce7; stroke: #16a34a; }
+  .output rect { fill: #fee2e2; stroke: #dc2626; }
+  .op rect { fill: #e0f2fe; stroke: #0284c7; }
+  .shared rect { fill: #ede9fe; stroke: #7c3aed; }
+  .head rect { fill: #fef3c7; stroke: #d97706; }
+  .edge { fill: none; stroke: #475569; stroke-width: 1.5; marker-end: url(#arrow); opacity: 0.72; }
+</style>
+<path class="edge" d="M 251.0 259.0 C 286.0 259.0, 286.0 199.0, 321.0 199.0" />
+<path class="edge" d="M 536.0 199.0 C 571.0 199.0, 571.0 199.0, 606.0 199.0" />
+<path class="edge" d="M 821.0 199.0 C 856.0 199.0, 856.0 199.0, 891.0 199.0" />
+<path class="edge" d="M 1106.0 199.0 C 1141.0 199.0, 1141.0 79.0, 1176.0 79.0" />
+<path class="edge" d="M 1106.0 199.0 C 1141.0 199.0, 1141.0 199.0, 1176.0 199.0" />
+<path class="edge" d="M 1391.0 79.0 C 1426.0 79.0, 1426.0 319.0, 1461.0 319.0" />
+<path class="edge" d="M 1391.0 199.0 C 1426.0 199.0, 1426.0 439.0, 1461.0 439.0" />
+<path class="edge" d="M 1676.0 319.0 C 1711.0 319.0, 1711.0 319.0, 1746.0 319.0" />
+<path class="edge" d="M 1961.0 319.0 C 1996.0 319.0, 1996.0 319.0, 2031.0 319.0" />
+<path class="edge" d="M 2246.0 319.0 C 2281.0 319.0, 2281.0 319.0, 2316.0 319.0" />
+<path class="edge" d="M 1676.0 439.0 C 2138.5 439.0, 2138.5 199.0, 2601.0 199.0" />
+<path class="edge" d="M 2531.0 319.0 C 2566.0 319.0, 2566.0 199.0, 2601.0 199.0" />
+<path class="edge" d="M 2816.0 199.0 C 2851.0 199.0, 2851.0 199.0, 2886.0 199.0" />
+<path class="edge" d="M 3101.0 199.0 C 3136.0 199.0, 3136.0 79.0, 3171.0 79.0" />
+<path class="edge" d="M 3101.0 199.0 C 3136.0 199.0, 3136.0 199.0, 3171.0 199.0" />
+<path class="edge" d="M 3386.0 79.0 C 3421.0 79.0, 3421.0 79.0, 3456.0 79.0" />
+<path class="edge" d="M 3386.0 199.0 C 3421.0 199.0, 3421.0 199.0, 3456.0 199.0" />
+<path class="edge" d="M 3671.0 79.0 C 3706.0 79.0, 3706.0 199.0, 3741.0 199.0" />
+<path class="edge" d="M 3956.0 199.0 C 3991.0 199.0, 3991.0 199.0, 4026.0 199.0" />
+<path class="edge" d="M 4241.0 199.0 C 4276.0 199.0, 4276.0 199.0, 4311.0 199.0" />
+<path class="edge" d="M 3671.0 199.0 C 4133.5 199.0, 4133.5 199.0, 4596.0 199.0" />
+<path class="edge" d="M 4526.0 199.0 C 4561.0 199.0, 4561.0 199.0, 4596.0 199.0" />
+<path class="edge" d="M 4811.0 199.0 C 4846.0 199.0, 4846.0 199.0, 4881.0 199.0" />
+<path class="edge" d="M 5096.0 199.0 C 5131.0 199.0, 5131.0 79.0, 5166.0 79.0" />
+<path class="edge" d="M 5096.0 199.0 C 5131.0 199.0, 5131.0 199.0, 5166.0 199.0" />
+<path class="edge" d="M 5381.0 79.0 C 5416.0 79.0, 5416.0 79.0, 5451.0 79.0" />
+<path class="edge" d="M 5381.0 199.0 C 5416.0 199.0, 5416.0 199.0, 5451.0 199.0" />
+<path class="edge" d="M 5666.0 79.0 C 5701.0 79.0, 5701.0 199.0, 5736.0 199.0" />
+<path class="edge" d="M 5951.0 199.0 C 5986.0 199.0, 5986.0 199.0, 6021.0 199.0" />
+<path class="edge" d="M 6236.0 199.0 C 6271.0 199.0, 6271.0 199.0, 6306.0 199.0" />
+<path class="edge" d="M 5666.0 199.0 C 6128.5 199.0, 6128.5 199.0, 6591.0 199.0" />
+<path class="edge" d="M 6521.0 199.0 C 6556.0 199.0, 6556.0 199.0, 6591.0 199.0" />
+<path class="edge" d="M 6806.0 199.0 C 6841.0 199.0, 6841.0 199.0, 6876.0 199.0" />
+<path class="edge" d="M 7091.0 199.0 C 7126.0 199.0, 7126.0 79.0, 7161.0 79.0" />
+<path class="edge" d="M 7091.0 199.0 C 7126.0 199.0, 7126.0 199.0, 7161.0 199.0" />
+<path class="edge" d="M 7376.0 79.0 C 7411.0 79.0, 7411.0 79.0, 7446.0 79.0" />
+<path class="edge" d="M 7376.0 199.0 C 7411.0 199.0, 7411.0 199.0, 7446.0 199.0" />
+<path class="edge" d="M 7661.0 79.0 C 7696.0 79.0, 7696.0 199.0, 7731.0 199.0" />
+<path class="edge" d="M 7946.0 199.0 C 7981.0 199.0, 7981.0 199.0, 8016.0 199.0" />
+<path class="edge" d="M 8231.0 199.0 C 8266.0 199.0, 8266.0 199.0, 8301.0 199.0" />
+<path class="edge" d="M 7661.0 199.0 C 8123.5 199.0, 8123.5 199.0, 8586.0 199.0" />
+<path class="edge" d="M 8516.0 199.0 C 8551.0 199.0, 8551.0 199.0, 8586.0 199.0" />
+<path class="edge" d="M 8801.0 199.0 C 8836.0 199.0, 8836.0 199.0, 8871.0 199.0" />
+<path class="edge" d="M 9086.0 199.0 C 9121.0 199.0, 9121.0 79.0, 9156.0 79.0" />
+<path class="edge" d="M 9086.0 199.0 C 9121.0 199.0, 9121.0 199.0, 9156.0 199.0" />
+<path class="edge" d="M 9371.0 199.0 C 9406.0 199.0, 9406.0 139.0, 9441.0 139.0" />
+<path class="edge" d="M 251.0 259.0 C 286.0 259.0, 286.0 319.0, 321.0 319.0" />
+<path class="edge" d="M 536.0 319.0 C 571.0 319.0, 571.0 319.0, 606.0 319.0" />
+<path class="edge" d="M 821.0 319.0 C 856.0 319.0, 856.0 319.0, 891.0 319.0" />
+<path class="edge" d="M 1106.0 319.0 C 1141.0 319.0, 1141.0 319.0, 1176.0 319.0" />
+<path class="edge" d="M 1106.0 319.0 C 1141.0 319.0, 1141.0 439.0, 1176.0 439.0" />
+<path class="edge" d="M 1391.0 319.0 C 1426.0 319.0, 1426.0 79.0, 1461.0 79.0" />
+<path class="edge" d="M 1391.0 439.0 C 1426.0 439.0, 1426.0 199.0, 1461.0 199.0" />
+<path class="edge" d="M 1676.0 79.0 C 1711.0 79.0, 1711.0 199.0, 1746.0 199.0" />
+<path class="edge" d="M 1961.0 199.0 C 1996.0 199.0, 1996.0 199.0, 2031.0 199.0" />
+<path class="edge" d="M 2246.0 199.0 C 2281.0 199.0, 2281.0 199.0, 2316.0 199.0" />
+<path class="edge" d="M 1676.0 199.0 C 2138.5 199.0, 2138.5 319.0, 2601.0 319.0" />
+<path class="edge" d="M 2531.0 199.0 C 2566.0 199.0, 2566.0 319.0, 2601.0 319.0" />
+<path class="edge" d="M 2816.0 319.0 C 2851.0 319.0, 2851.0 319.0, 2886.0 319.0" />
+<path class="edge" d="M 3101.0 319.0 C 3136.0 319.0, 3136.0 319.0, 3171.0 319.0" />
+<path class="edge" d="M 3101.0 319.0 C 3136.0 319.0, 3136.0 439.0, 3171.0 439.0" />
+<path class="edge" d="M 3386.0 319.0 C 3421.0 319.0, 3421.0 319.0, 3456.0 319.0" />
+<path class="edge" d="M 3386.0 439.0 C 3421.0 439.0, 3421.0 439.0, 3456.0 439.0" />
+<path class="edge" d="M 3671.0 319.0 C 3706.0 319.0, 3706.0 319.0, 3741.0 319.0" />
+<path class="edge" d="M 3956.0 319.0 C 3991.0 319.0, 3991.0 319.0, 4026.0 319.0" />
+<path class="edge" d="M 4241.0 319.0 C 4276.0 319.0, 4276.0 319.0, 4311.0 319.0" />
+<path class="edge" d="M 3671.0 439.0 C 4133.5 439.0, 4133.5 319.0, 4596.0 319.0" />
+<path class="edge" d="M 4526.0 319.0 C 4561.0 319.0, 4561.0 319.0, 4596.0 319.0" />
+<path class="edge" d="M 4811.0 319.0 C 4846.0 319.0, 4846.0 319.0, 4881.0 319.0" />
+<path class="edge" d="M 5096.0 319.0 C 5131.0 319.0, 5131.0 319.0, 5166.0 319.0" />
+<path class="edge" d="M 5096.0 319.0 C 5131.0 319.0, 5131.0 439.0, 5166.0 439.0" />
+<path class="edge" d="M 5381.0 319.0 C 5416.0 319.0, 5416.0 319.0, 5451.0 319.0" />
+<path class="edge" d="M 5381.0 439.0 C 5416.0 439.0, 5416.0 439.0, 5451.0 439.0" />
+<path class="edge" d="M 5666.0 319.0 C 5701.0 319.0, 5701.0 319.0, 5736.0 319.0" />
+<path class="edge" d="M 5951.0 319.0 C 5986.0 319.0, 5986.0 319.0, 6021.0 319.0" />
+<path class="edge" d="M 6236.0 319.0 C 6271.0 319.0, 6271.0 319.0, 6306.0 319.0" />
+<path class="edge" d="M 5666.0 439.0 C 6128.5 439.0, 6128.5 319.0, 6591.0 319.0" />
+<path class="edge" d="M 6521.0 319.0 C 6556.0 319.0, 6556.0 319.0, 6591.0 319.0" />
+<path class="edge" d="M 6806.0 319.0 C 6841.0 319.0, 6841.0 319.0, 6876.0 319.0" />
+<path class="edge" d="M 7091.0 319.0 C 7126.0 319.0, 7126.0 319.0, 7161.0 319.0" />
+<path class="edge" d="M 7091.0 319.0 C 7126.0 319.0, 7126.0 439.0, 7161.0 439.0" />
+<path class="edge" d="M 7376.0 319.0 C 7411.0 319.0, 7411.0 319.0, 7446.0 319.0" />
+<path class="edge" d="M 7376.0 439.0 C 7411.0 439.0, 7411.0 439.0, 7446.0 439.0" />
+<path class="edge" d="M 7661.0 319.0 C 7696.0 319.0, 7696.0 319.0, 7731.0 319.0" />
+<path class="edge" d="M 7946.0 319.0 C 7981.0 319.0, 7981.0 319.0, 8016.0 319.0" />
+<path class="edge" d="M 8231.0 319.0 C 8266.0 319.0, 8266.0 319.0, 8301.0 319.0" />
+<path class="edge" d="M 7661.0 439.0 C 8123.5 439.0, 8123.5 319.0, 8586.0 319.0" />
+<path class="edge" d="M 8516.0 319.0 C 8551.0 319.0, 8551.0 319.0, 8586.0 319.0" />
+<path class="edge" d="M 8801.0 319.0 C 8836.0 319.0, 8836.0 319.0, 8871.0 319.0" />
+<path class="edge" d="M 9086.0 319.0 C 9121.0 319.0, 9121.0 319.0, 9156.0 319.0" />
+<path class="edge" d="M 9086.0 319.0 C 9121.0 319.0, 9121.0 439.0, 9156.0 439.0" />
+<path class="edge" d="M 9371.0 439.0 C 9406.0 439.0, 9406.0 259.0, 9441.0 259.0" />
+<path class="edge" d="M 9656.0 259.0 C 9691.0 259.0, 9691.0 199.0, 9726.0 199.0" />
+<path class="edge" d="M 9656.0 139.0 C 9691.0 139.0, 9691.0 199.0, 9726.0 199.0" />
+<path class="edge" d="M 9941.0 199.0 C 9976.0 199.0, 9976.0 259.0, 10011.0 259.0" />
+<path class="edge" d="M 9371.0 319.0 C 9406.0 319.0, 9406.0 379.0, 9441.0 379.0" />
+<path class="edge" d="M 9371.0 79.0 C 9406.0 79.0, 9406.0 379.0, 9441.0 379.0" />
+<path class="edge" d="M 9656.0 379.0 C 9691.0 379.0, 9691.0 319.0, 9726.0 319.0" />
+<path class="edge" d="M 9941.0 319.0 C 10118.5 319.0, 10118.5 199.0, 10296.0 199.0" />
+<path class="edge" d="M 10226.0 259.0 C 10261.0 259.0, 10261.0 319.0, 10296.0 319.0" />
+<g class="node input">
+<rect x="36.0" y="216.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="48.0" y="240.0"><tspan x="48.0" dy="0">INPUT</tspan><tspan x="48.0" dy="15">data</tspan><tspan x="48.0" dy="15">FLOAT[1x3x270x480]</tspan></text>
+</g>
+<g class="node op">
+<rect x="321.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="333.0" y="180.0"><tspan x="333.0" dy="0">#0 Conv</tspan><tspan x="333.0" dy="15">conv1_branch_1</tspan><tspan x="333.0" dy="15">FLOAT[1x64x135x240]</tspan></text>
+</g>
+<g class="node op">
+<rect x="606.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="618.0" y="180.0"><tspan x="618.0" dy="0">#1 BatchNormalization</tspan><tspan x="618.0" dy="15">bn_conv1_branch_1</tspan><tspan x="618.0" dy="15">FLOAT[1x64x135x240]</tspan></text>
+</g>
+<g class="node op">
+<rect x="891.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="903.0" y="180.0"><tspan x="903.0" dy="0">#2 Relu</tspan><tspan x="903.0" dy="15">activation_1/Relu_branch_1</tspan><tspan x="903.0" dy="15">FLOAT[1x64x135x240]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1176.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1188.0" y="60.0"><tspan x="1188.0" dy="0">#3 Conv</tspan><tspan x="1188.0" dy="15">block_1a_conv_1_branch_1</tspan><tspan x="1188.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1176.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1188.0" y="180.0"><tspan x="1188.0" dy="0">#4 Conv</tspan><tspan x="1188.0" dy="15">block_1a_conv_shortcut_branch_1</tspan><tspan x="1188.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1461.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1473.0" y="300.0"><tspan x="1473.0" dy="0">#5 BatchNormalization</tspan><tspan x="1473.0" dy="15">block_1a_bn_1_branch_1</tspan><tspan x="1473.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1461.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1473.0" y="420.0"><tspan x="1473.0" dy="0">#6 BatchNormalization</tspan><tspan x="1473.0" dy="15">block_1a_bn_shortcut_branch_1</tspan><tspan x="1473.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1746.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1758.0" y="300.0"><tspan x="1758.0" dy="0">#7 Relu</tspan><tspan x="1758.0" dy="15">activation_2/Relu_branch_1</tspan><tspan x="1758.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2031.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2043.0" y="300.0"><tspan x="2043.0" dy="0">#8 Conv</tspan><tspan x="2043.0" dy="15">block_1a_conv_2_branch_1</tspan><tspan x="2043.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2316.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2328.0" y="300.0"><tspan x="2328.0" dy="0">#9 BatchNormalization</tspan><tspan x="2328.0" dy="15">block_1a_bn_2_branch_1</tspan><tspan x="2328.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2601.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2613.0" y="180.0"><tspan x="2613.0" dy="0">#10 Add</tspan><tspan x="2613.0" dy="15">add_1_branch_1</tspan><tspan x="2613.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2886.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2898.0" y="180.0"><tspan x="2898.0" dy="0">#11 Relu</tspan><tspan x="2898.0" dy="15">activation_3/Relu_branch_1</tspan><tspan x="2898.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3171.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3183.0" y="60.0"><tspan x="3183.0" dy="0">#12 Conv</tspan><tspan x="3183.0" dy="15">block_2a_conv_1_branch_1</tspan><tspan x="3183.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3171.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3183.0" y="180.0"><tspan x="3183.0" dy="0">#13 Conv</tspan><tspan x="3183.0" dy="15">block_2a_conv_shortcut_branch_1</tspan><tspan x="3183.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3456.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3468.0" y="60.0"><tspan x="3468.0" dy="0">#14 BatchNormalization</tspan><tspan x="3468.0" dy="15">block_2a_bn_1_branch_1</tspan><tspan x="3468.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3456.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3468.0" y="180.0"><tspan x="3468.0" dy="0">#15 BatchNormalization</tspan><tspan x="3468.0" dy="15">block_2a_bn_shortcut_branch_1</tspan><tspan x="3468.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3741.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3753.0" y="180.0"><tspan x="3753.0" dy="0">#16 Relu</tspan><tspan x="3753.0" dy="15">activation_4/Relu_branch_1</tspan><tspan x="3753.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4026.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4038.0" y="180.0"><tspan x="4038.0" dy="0">#17 Conv</tspan><tspan x="4038.0" dy="15">block_2a_conv_2_branch_1</tspan><tspan x="4038.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4311.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4323.0" y="180.0"><tspan x="4323.0" dy="0">#18 BatchNormalization</tspan><tspan x="4323.0" dy="15">block_2a_bn_2_branch_1</tspan><tspan x="4323.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4596.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4608.0" y="180.0"><tspan x="4608.0" dy="0">#19 Add</tspan><tspan x="4608.0" dy="15">add_2_branch_1</tspan><tspan x="4608.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4881.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4893.0" y="180.0"><tspan x="4893.0" dy="0">#20 Relu</tspan><tspan x="4893.0" dy="15">activation_5/Relu_branch_1</tspan><tspan x="4893.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5166.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5178.0" y="60.0"><tspan x="5178.0" dy="0">#21 Conv</tspan><tspan x="5178.0" dy="15">block_3a_conv_1_branch_1</tspan><tspan x="5178.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5166.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5178.0" y="180.0"><tspan x="5178.0" dy="0">#22 Conv</tspan><tspan x="5178.0" dy="15">block_3a_conv_shortcut_branch_1</tspan><tspan x="5178.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5451.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5463.0" y="60.0"><tspan x="5463.0" dy="0">#23 BatchNormalization</tspan><tspan x="5463.0" dy="15">block_3a_bn_1_branch_1</tspan><tspan x="5463.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5451.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5463.0" y="180.0"><tspan x="5463.0" dy="0">#24 BatchNormalization</tspan><tspan x="5463.0" dy="15">block_3a_bn_shortcut_branch_1</tspan><tspan x="5463.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5736.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5748.0" y="180.0"><tspan x="5748.0" dy="0">#25 Relu</tspan><tspan x="5748.0" dy="15">activation_6/Relu_branch_1</tspan><tspan x="5748.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6021.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6033.0" y="180.0"><tspan x="6033.0" dy="0">#26 Conv</tspan><tspan x="6033.0" dy="15">block_3a_conv_2_branch_1</tspan><tspan x="6033.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6306.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6318.0" y="180.0"><tspan x="6318.0" dy="0">#27 BatchNormalization</tspan><tspan x="6318.0" dy="15">block_3a_bn_2_branch_1</tspan><tspan x="6318.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6591.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6603.0" y="180.0"><tspan x="6603.0" dy="0">#28 Add</tspan><tspan x="6603.0" dy="15">add_3_branch_1</tspan><tspan x="6603.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6876.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6888.0" y="180.0"><tspan x="6888.0" dy="0">#29 Relu</tspan><tspan x="6888.0" dy="15">activation_7/Relu_branch_1</tspan><tspan x="6888.0" dy="15">FLOAT[1x256x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7161.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7173.0" y="60.0"><tspan x="7173.0" dy="0">#30 Conv</tspan><tspan x="7173.0" dy="15">block_4a_conv_1_branch_1</tspan><tspan x="7173.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7161.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7173.0" y="180.0"><tspan x="7173.0" dy="0">#31 Conv</tspan><tspan x="7173.0" dy="15">block_4a_conv_shortcut_branch_1</tspan><tspan x="7173.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7446.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7458.0" y="60.0"><tspan x="7458.0" dy="0">#32 BatchNormalization</tspan><tspan x="7458.0" dy="15">block_4a_bn_1_branch_1</tspan><tspan x="7458.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7446.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7458.0" y="180.0"><tspan x="7458.0" dy="0">#33 BatchNormalization</tspan><tspan x="7458.0" dy="15">block_4a_bn_shortcut_branch_1</tspan><tspan x="7458.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7731.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7743.0" y="180.0"><tspan x="7743.0" dy="0">#34 Relu</tspan><tspan x="7743.0" dy="15">activation_8/Relu_branch_1</tspan><tspan x="7743.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8016.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8028.0" y="180.0"><tspan x="8028.0" dy="0">#35 Conv</tspan><tspan x="8028.0" dy="15">block_4a_conv_2_branch_1</tspan><tspan x="8028.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8301.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8313.0" y="180.0"><tspan x="8313.0" dy="0">#36 BatchNormalization</tspan><tspan x="8313.0" dy="15">block_4a_bn_2_branch_1</tspan><tspan x="8313.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8586.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8598.0" y="180.0"><tspan x="8598.0" dy="0">#37 Add</tspan><tspan x="8598.0" dy="15">add_4_branch_1</tspan><tspan x="8598.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8871.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8883.0" y="180.0"><tspan x="8883.0" dy="0">#38 Relu</tspan><tspan x="8883.0" dy="15">activation_9/Relu_branch_1</tspan><tspan x="8883.0" dy="15">FLOAT[1x512x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9156.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9168.0" y="60.0"><tspan x="9168.0" dy="0">#39 Conv</tspan><tspan x="9168.0" dy="15">conv2d_bbox_branch_1</tspan><tspan x="9168.0" dy="15">FLOAT[1x12x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9156.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9168.0" y="180.0"><tspan x="9168.0" dy="0">#40 Conv</tspan><tspan x="9168.0" dy="15">conv2d_cov_branch_1</tspan><tspan x="9168.0" dy="15">FLOAT[1x3x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9441.0" y="96.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9453.0" y="120.0"><tspan x="9453.0" dy="0">#41 Sigmoid</tspan><tspan x="9453.0" dy="15">conv2d_cov/Sigmoid_branch_1</tspan><tspan x="9453.0" dy="15">FLOAT[1x3x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="321.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="333.0" y="300.0"><tspan x="333.0" dy="0">#42 Conv</tspan><tspan x="333.0" dy="15">conv1_branch_2</tspan><tspan x="333.0" dy="15">FLOAT[1x48x135x240]</tspan></text>
+</g>
+<g class="node op">
+<rect x="606.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="618.0" y="300.0"><tspan x="618.0" dy="0">#43 BatchNormalization</tspan><tspan x="618.0" dy="15">bn_conv1_branch_2</tspan><tspan x="618.0" dy="15">FLOAT[1x48x135x240]</tspan></text>
+</g>
+<g class="node op">
+<rect x="891.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="903.0" y="300.0"><tspan x="903.0" dy="0">#44 Relu</tspan><tspan x="903.0" dy="15">activation_1/Relu_branch_2</tspan><tspan x="903.0" dy="15">FLOAT[1x48x135x240]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1176.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1188.0" y="300.0"><tspan x="1188.0" dy="0">#45 Conv</tspan><tspan x="1188.0" dy="15">block_1a_conv_1_branch_2</tspan><tspan x="1188.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1176.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1188.0" y="420.0"><tspan x="1188.0" dy="0">#46 Conv</tspan><tspan x="1188.0" dy="15">block_1a_conv_shortcut_branch_2</tspan><tspan x="1188.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1461.0" y="36.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1473.0" y="60.0"><tspan x="1473.0" dy="0">#47 BatchNormalization</tspan><tspan x="1473.0" dy="15">block_1a_bn_1_branch_2</tspan><tspan x="1473.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1461.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1473.0" y="180.0"><tspan x="1473.0" dy="0">#48 BatchNormalization</tspan><tspan x="1473.0" dy="15">block_1a_bn_shortcut_branch_2</tspan><tspan x="1473.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="1746.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="1758.0" y="180.0"><tspan x="1758.0" dy="0">#49 Relu</tspan><tspan x="1758.0" dy="15">activation_2/Relu_branch_2</tspan><tspan x="1758.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2031.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2043.0" y="180.0"><tspan x="2043.0" dy="0">#50 Conv</tspan><tspan x="2043.0" dy="15">block_1a_conv_2_branch_2</tspan><tspan x="2043.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2316.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2328.0" y="180.0"><tspan x="2328.0" dy="0">#51 BatchNormalization</tspan><tspan x="2328.0" dy="15">block_1a_bn_2_branch_2</tspan><tspan x="2328.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2601.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2613.0" y="300.0"><tspan x="2613.0" dy="0">#52 Add</tspan><tspan x="2613.0" dy="15">add_1_branch_2</tspan><tspan x="2613.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="2886.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="2898.0" y="300.0"><tspan x="2898.0" dy="0">#53 Relu</tspan><tspan x="2898.0" dy="15">activation_3/Relu_branch_2</tspan><tspan x="2898.0" dy="15">FLOAT[1x64x68x120]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3171.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3183.0" y="300.0"><tspan x="3183.0" dy="0">#54 Conv</tspan><tspan x="3183.0" dy="15">block_2a_conv_1_branch_2</tspan><tspan x="3183.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3171.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3183.0" y="420.0"><tspan x="3183.0" dy="0">#55 Conv</tspan><tspan x="3183.0" dy="15">block_2a_conv_shortcut_branch_2</tspan><tspan x="3183.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3456.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3468.0" y="300.0"><tspan x="3468.0" dy="0">#56 BatchNormalization</tspan><tspan x="3468.0" dy="15">block_2a_bn_1_branch_2</tspan><tspan x="3468.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3456.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3468.0" y="420.0"><tspan x="3468.0" dy="0">#57 BatchNormalization</tspan><tspan x="3468.0" dy="15">block_2a_bn_shortcut_branch_2</tspan><tspan x="3468.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="3741.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="3753.0" y="300.0"><tspan x="3753.0" dy="0">#58 Relu</tspan><tspan x="3753.0" dy="15">activation_4/Relu_branch_2</tspan><tspan x="3753.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4026.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4038.0" y="300.0"><tspan x="4038.0" dy="0">#59 Conv</tspan><tspan x="4038.0" dy="15">block_2a_conv_2_branch_2</tspan><tspan x="4038.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4311.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4323.0" y="300.0"><tspan x="4323.0" dy="0">#60 BatchNormalization</tspan><tspan x="4323.0" dy="15">block_2a_bn_2_branch_2</tspan><tspan x="4323.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4596.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4608.0" y="300.0"><tspan x="4608.0" dy="0">#61 Add</tspan><tspan x="4608.0" dy="15">add_2_branch_2</tspan><tspan x="4608.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="4881.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="4893.0" y="300.0"><tspan x="4893.0" dy="0">#62 Relu</tspan><tspan x="4893.0" dy="15">activation_5/Relu_branch_2</tspan><tspan x="4893.0" dy="15">FLOAT[1x128x34x60]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5166.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5178.0" y="300.0"><tspan x="5178.0" dy="0">#63 Conv</tspan><tspan x="5178.0" dy="15">block_3a_conv_1_branch_2</tspan><tspan x="5178.0" dy="15">FLOAT[1x160x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5166.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5178.0" y="420.0"><tspan x="5178.0" dy="0">#64 Conv</tspan><tspan x="5178.0" dy="15">block_3a_conv_shortcut_branch_2</tspan><tspan x="5178.0" dy="15">FLOAT[1x128x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5451.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5463.0" y="300.0"><tspan x="5463.0" dy="0">#65 BatchNormalization</tspan><tspan x="5463.0" dy="15">block_3a_bn_1_branch_2</tspan><tspan x="5463.0" dy="15">FLOAT[1x160x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5451.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5463.0" y="420.0"><tspan x="5463.0" dy="0">#66 BatchNormalization</tspan><tspan x="5463.0" dy="15">block_3a_bn_shortcut_branch_2</tspan><tspan x="5463.0" dy="15">FLOAT[1x128x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="5736.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="5748.0" y="300.0"><tspan x="5748.0" dy="0">#67 Relu</tspan><tspan x="5748.0" dy="15">activation_6/Relu_branch_2</tspan><tspan x="5748.0" dy="15">FLOAT[1x160x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6021.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6033.0" y="300.0"><tspan x="6033.0" dy="0">#68 Conv</tspan><tspan x="6033.0" dy="15">block_3a_conv_2_branch_2</tspan><tspan x="6033.0" dy="15">FLOAT[1x128x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6306.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6318.0" y="300.0"><tspan x="6318.0" dy="0">#69 BatchNormalization</tspan><tspan x="6318.0" dy="15">block_3a_bn_2_branch_2</tspan><tspan x="6318.0" dy="15">FLOAT[1x128x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6591.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6603.0" y="300.0"><tspan x="6603.0" dy="0">#70 Add</tspan><tspan x="6603.0" dy="15">add_3_branch_2</tspan><tspan x="6603.0" dy="15">FLOAT[1x128x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="6876.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="6888.0" y="300.0"><tspan x="6888.0" dy="0">#71 Relu</tspan><tspan x="6888.0" dy="15">activation_7/Relu_branch_2</tspan><tspan x="6888.0" dy="15">FLOAT[1x128x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7161.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7173.0" y="300.0"><tspan x="7173.0" dy="0">#72 Conv</tspan><tspan x="7173.0" dy="15">block_4a_conv_1_branch_2</tspan><tspan x="7173.0" dy="15">FLOAT[1x64x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7161.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7173.0" y="420.0"><tspan x="7173.0" dy="0">#73 Conv</tspan><tspan x="7173.0" dy="15">block_4a_conv_shortcut_branch_2</tspan><tspan x="7173.0" dy="15">FLOAT[1x88x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7446.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7458.0" y="300.0"><tspan x="7458.0" dy="0">#74 BatchNormalization</tspan><tspan x="7458.0" dy="15">block_4a_bn_1_branch_2</tspan><tspan x="7458.0" dy="15">FLOAT[1x64x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7446.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7458.0" y="420.0"><tspan x="7458.0" dy="0">#75 BatchNormalization</tspan><tspan x="7458.0" dy="15">block_4a_bn_shortcut_branch_2</tspan><tspan x="7458.0" dy="15">FLOAT[1x88x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="7731.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="7743.0" y="300.0"><tspan x="7743.0" dy="0">#76 Relu</tspan><tspan x="7743.0" dy="15">activation_8/Relu_branch_2</tspan><tspan x="7743.0" dy="15">FLOAT[1x64x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8016.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8028.0" y="300.0"><tspan x="8028.0" dy="0">#77 Conv</tspan><tspan x="8028.0" dy="15">block_4a_conv_2_branch_2</tspan><tspan x="8028.0" dy="15">FLOAT[1x88x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8301.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8313.0" y="300.0"><tspan x="8313.0" dy="0">#78 BatchNormalization</tspan><tspan x="8313.0" dy="15">block_4a_bn_2_branch_2</tspan><tspan x="8313.0" dy="15">FLOAT[1x88x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8586.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8598.0" y="300.0"><tspan x="8598.0" dy="0">#79 Add</tspan><tspan x="8598.0" dy="15">add_4_branch_2</tspan><tspan x="8598.0" dy="15">FLOAT[1x88x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="8871.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="8883.0" y="300.0"><tspan x="8883.0" dy="0">#80 Relu</tspan><tspan x="8883.0" dy="15">activation_9/Relu_branch_2</tspan><tspan x="8883.0" dy="15">FLOAT[1x88x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9156.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9168.0" y="300.0"><tspan x="9168.0" dy="0">#81 Conv</tspan><tspan x="9168.0" dy="15">output_bbox_branch_2</tspan><tspan x="9168.0" dy="15">FLOAT[1x4x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9156.0" y="396.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9168.0" y="420.0"><tspan x="9168.0" dy="0">#82 Conv</tspan><tspan x="9168.0" dy="15">output_cov_branch_2</tspan><tspan x="9168.0" dy="15">FLOAT[1x1x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9441.0" y="216.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9453.0" y="240.0"><tspan x="9453.0" dy="0">#83 Sigmoid</tspan><tspan x="9453.0" dy="15">output_cov/Sigmoid_branch_2</tspan><tspan x="9453.0" dy="15">FLOAT[1x1x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9726.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9738.0" y="180.0"><tspan x="9738.0" dy="0">#84 Concat</tspan><tspan x="9738.0" dy="15">concatenate_cov</tspan><tspan x="9738.0" dy="15">FLOAT[1x4x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="10011.0" y="216.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="10023.0" y="240.0"><tspan x="10023.0" dy="0">#85 Identity</tspan><tspan x="10023.0" dy="15">concatenate_cov_identity</tspan><tspan x="10023.0" dy="15">FLOAT[1x4x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9441.0" y="336.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9453.0" y="360.0"><tspan x="9453.0" dy="0">#86 Concat</tspan><tspan x="9453.0" dy="15">concatenate_bbox</tspan><tspan x="9453.0" dy="15">FLOAT[1x16x17x30]</tspan></text>
+</g>
+<g class="node op">
+<rect x="9726.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="9738.0" y="300.0"><tspan x="9738.0" dy="0">#87 Identity</tspan><tspan x="9738.0" dy="15">concatenate_bbox_identity</tspan><tspan x="9738.0" dy="15">FLOAT[1x16x17x30]</tspan></text>
+</g>
+<g class="node output">
+<rect x="10296.0" y="156.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="10308.0" y="180.0"><tspan x="10308.0" dy="0">OUTPUT</tspan><tspan x="10308.0" dy="15">conv2d_bbox</tspan><tspan x="10308.0" dy="15">FLOAT[1x16x17x30]</tspan></text>
+</g>
+<g class="node output">
+<rect x="10296.0" y="276.0" width="215.0" height="86.0" rx="8" ry="8"/>
+<text x="10308.0" y="300.0"><tspan x="10308.0" dy="0">OUTPUT</tspan><tspan x="10308.0" dy="15">conv2d_cov/Sigmoid</tspan><tspan x="10308.0" dy="15">FLOAT[1x4x17x30]</tspan></text>
+</g>
+</svg>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>输入</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Shape</th></tr></thead><tbody><tr><td>data</td><td>FLOAT[1x3x270x480]</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>输出</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Shape</th></tr></thead><tbody><tr><td>conv2d_bbox</td><td>FLOAT[1x16x17x30]</td></tr>
+<tr><td>conv2d_cov/Sigmoid</td><td>FLOAT[1x4x17x30]</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Op 统计</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Op Type</th><th>Count</th></tr></thead><tbody><tr><td>Conv</td><td>30</td></tr>
+<tr><td>BatchNormalization</td><td>26</td></tr>
+<tr><td>Relu</td><td>18</td></tr>
+<tr><td>Add</td><td>8</td></tr>
+<tr><td>Sigmoid</td><td>2</td></tr>
+<tr><td>Concat</td><td>2</td></tr>
+<tr><td>Identity</td><td>2</td></tr></tbody></table>
+      </div>
+    </section>
+
+    
+<section class="panel">
+  <div class="section-head">
+    <h2>ONNX 节点明细</h2>
+    <input id="nodeFilter" placeholder="搜索 op / 节点名 / tensor 名" oninput="filterRows()" />
+  </div>
+  <div class="table-wrap">
+    <table id="nodeTable">
+      <thead>
+        <tr><th>#</th><th>Op</th><th>Name</th><th>Inputs</th><th>Outputs</th><th>Output Shapes</th><th>Attributes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>Conv</td><td>conv1_branch_1</td><td>data
+conv1_branch_1_weight
+conv1_branch_1_bias</td><td>conv1_branch_1_1</td><td>FLOAT[1x64x135x240]</td><td>group=1; kernel_shape=[7, 7]; pads=[3, 3, 3, 3]; strides=[2, 2]</td></tr>
+<tr><td>1</td><td>BatchNormalization</td><td>bn_conv1_branch_1</td><td>conv1_branch_1_1
+bn_conv1_branch_1_scale
+bn_conv1_branch_1_B
+bn_conv1_branch_1_mean
+bn_conv1_branch_1_var</td><td>bn_conv1_branch_1_2</td><td>FLOAT[1x64x135x240]</td><td>epsilon=1e-05</td></tr>
+<tr><td>2</td><td>Relu</td><td>activation_1/Relu_branch_1</td><td>bn_conv1_branch_1_2</td><td>activation_1/Relu_branch_1_3</td><td>FLOAT[1x64x135x240]</td><td></td></tr>
+<tr><td>3</td><td>Conv</td><td>block_1a_conv_1_branch_1</td><td>activation_1/Relu_branch_1_3
+block_1a_conv_1_branch_1_weight
+block_1a_conv_1_branch_1_bias</td><td>block_1a_conv_1_branch_1_4</td><td>FLOAT[1x64x68x120]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[2, 2]</td></tr>
+<tr><td>4</td><td>Conv</td><td>block_1a_conv_shortcut_branch_1</td><td>activation_1/Relu_branch_1_3
+block_1a_conv_shortcut_branch_1_weight
+block_1a_conv_shortcut_branch_1_bias</td><td>block_1a_conv_shortcut_branch_1_5</td><td>FLOAT[1x64x68x120]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[2, 2]</td></tr>
+<tr><td>5</td><td>BatchNormalization</td><td>block_1a_bn_1_branch_1</td><td>block_1a_conv_1_branch_1_4
+block_1a_bn_1_branch_1_scale
+block_1a_bn_1_branch_1_B
+block_1a_bn_1_branch_1_mean
+block_1a_bn_1_branch_1_var</td><td>block_1a_bn_1_branch_1_6</td><td>FLOAT[1x64x68x120]</td><td>epsilon=1e-05</td></tr>
+<tr><td>6</td><td>BatchNormalization</td><td>block_1a_bn_shortcut_branch_1</td><td>block_1a_conv_shortcut_branch_1_5
+block_1a_bn_shortcut_branch_1_scale
+block_1a_bn_shortcut_branch_1_B
+block_1a_bn_shortcut_branch_1_mean
+block_1a_bn_shortcut_branch_1_var</td><td>block_1a_bn_shortcut_branch_1_7</td><td>FLOAT[1x64x68x120]</td><td>epsilon=1e-05</td></tr>
+<tr><td>7</td><td>Relu</td><td>activation_2/Relu_branch_1</td><td>block_1a_bn_1_branch_1_6</td><td>activation_2/Relu_branch_1_8</td><td>FLOAT[1x64x68x120]</td><td></td></tr>
+<tr><td>8</td><td>Conv</td><td>block_1a_conv_2_branch_1</td><td>activation_2/Relu_branch_1_8
+block_1a_conv_2_branch_1_weight
+block_1a_conv_2_branch_1_bias</td><td>block_1a_conv_2_branch_1_9</td><td>FLOAT[1x64x68x120]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>9</td><td>BatchNormalization</td><td>block_1a_bn_2_branch_1</td><td>block_1a_conv_2_branch_1_9
+block_1a_bn_2_branch_1_scale
+block_1a_bn_2_branch_1_B
+block_1a_bn_2_branch_1_mean
+block_1a_bn_2_branch_1_var</td><td>block_1a_bn_2_branch_1_10</td><td>FLOAT[1x64x68x120]</td><td>epsilon=1e-05</td></tr>
+<tr><td>10</td><td>Add</td><td>add_1_branch_1</td><td>block_1a_bn_shortcut_branch_1_7
+block_1a_bn_2_branch_1_10</td><td>add_1_branch_1_11</td><td>FLOAT[1x64x68x120]</td><td></td></tr>
+<tr><td>11</td><td>Relu</td><td>activation_3/Relu_branch_1</td><td>add_1_branch_1_11</td><td>activation_3/Relu_branch_1_12</td><td>FLOAT[1x64x68x120]</td><td></td></tr>
+<tr><td>12</td><td>Conv</td><td>block_2a_conv_1_branch_1</td><td>activation_3/Relu_branch_1_12
+block_2a_conv_1_branch_1_weight
+block_2a_conv_1_branch_1_bias</td><td>block_2a_conv_1_branch_1_13</td><td>FLOAT[1x128x34x60]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[2, 2]</td></tr>
+<tr><td>13</td><td>Conv</td><td>block_2a_conv_shortcut_branch_1</td><td>activation_3/Relu_branch_1_12
+block_2a_conv_shortcut_branch_1_weight
+block_2a_conv_shortcut_branch_1_bias</td><td>block_2a_conv_shortcut_branch_1_14</td><td>FLOAT[1x128x34x60]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[2, 2]</td></tr>
+<tr><td>14</td><td>BatchNormalization</td><td>block_2a_bn_1_branch_1</td><td>block_2a_conv_1_branch_1_13
+block_2a_bn_1_branch_1_scale
+block_2a_bn_1_branch_1_B
+block_2a_bn_1_branch_1_mean
+block_2a_bn_1_branch_1_var</td><td>block_2a_bn_1_branch_1_15</td><td>FLOAT[1x128x34x60]</td><td>epsilon=1e-05</td></tr>
+<tr><td>15</td><td>BatchNormalization</td><td>block_2a_bn_shortcut_branch_1</td><td>block_2a_conv_shortcut_branch_1_14
+block_2a_bn_shortcut_branch_1_scale
+block_2a_bn_shortcut_branch_1_B
+block_2a_bn_shortcut_branch_1_mean
+block_2a_bn_shortcut_branch_1_var</td><td>block_2a_bn_shortcut_branch_1_16</td><td>FLOAT[1x128x34x60]</td><td>epsilon=1e-05</td></tr>
+<tr><td>16</td><td>Relu</td><td>activation_4/Relu_branch_1</td><td>block_2a_bn_1_branch_1_15</td><td>activation_4/Relu_branch_1_17</td><td>FLOAT[1x128x34x60]</td><td></td></tr>
+<tr><td>17</td><td>Conv</td><td>block_2a_conv_2_branch_1</td><td>activation_4/Relu_branch_1_17
+block_2a_conv_2_branch_1_weight
+block_2a_conv_2_branch_1_bias</td><td>block_2a_conv_2_branch_1_18</td><td>FLOAT[1x128x34x60]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>18</td><td>BatchNormalization</td><td>block_2a_bn_2_branch_1</td><td>block_2a_conv_2_branch_1_18
+block_2a_bn_2_branch_1_scale
+block_2a_bn_2_branch_1_B
+block_2a_bn_2_branch_1_mean
+block_2a_bn_2_branch_1_var</td><td>block_2a_bn_2_branch_1_19</td><td>FLOAT[1x128x34x60]</td><td>epsilon=1e-05</td></tr>
+<tr><td>19</td><td>Add</td><td>add_2_branch_1</td><td>block_2a_bn_shortcut_branch_1_16
+block_2a_bn_2_branch_1_19</td><td>add_2_branch_1_20</td><td>FLOAT[1x128x34x60]</td><td></td></tr>
+<tr><td>20</td><td>Relu</td><td>activation_5/Relu_branch_1</td><td>add_2_branch_1_20</td><td>activation_5/Relu_branch_1_21</td><td>FLOAT[1x128x34x60]</td><td></td></tr>
+<tr><td>21</td><td>Conv</td><td>block_3a_conv_1_branch_1</td><td>activation_5/Relu_branch_1_21
+block_3a_conv_1_branch_1_weight
+block_3a_conv_1_branch_1_bias</td><td>block_3a_conv_1_branch_1_22</td><td>FLOAT[1x256x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[2, 2]</td></tr>
+<tr><td>22</td><td>Conv</td><td>block_3a_conv_shortcut_branch_1</td><td>activation_5/Relu_branch_1_21
+block_3a_conv_shortcut_branch_1_weight
+block_3a_conv_shortcut_branch_1_bias</td><td>block_3a_conv_shortcut_branch_1_23</td><td>FLOAT[1x256x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[2, 2]</td></tr>
+<tr><td>23</td><td>BatchNormalization</td><td>block_3a_bn_1_branch_1</td><td>block_3a_conv_1_branch_1_22
+block_3a_bn_1_branch_1_scale
+block_3a_bn_1_branch_1_B
+block_3a_bn_1_branch_1_mean
+block_3a_bn_1_branch_1_var</td><td>block_3a_bn_1_branch_1_24</td><td>FLOAT[1x256x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>24</td><td>BatchNormalization</td><td>block_3a_bn_shortcut_branch_1</td><td>block_3a_conv_shortcut_branch_1_23
+block_3a_bn_shortcut_branch_1_scale
+block_3a_bn_shortcut_branch_1_B
+block_3a_bn_shortcut_branch_1_mean
+block_3a_bn_shortcut_branch_1_var</td><td>block_3a_bn_shortcut_branch_1_25</td><td>FLOAT[1x256x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>25</td><td>Relu</td><td>activation_6/Relu_branch_1</td><td>block_3a_bn_1_branch_1_24</td><td>activation_6/Relu_branch_1_26</td><td>FLOAT[1x256x17x30]</td><td></td></tr>
+<tr><td>26</td><td>Conv</td><td>block_3a_conv_2_branch_1</td><td>activation_6/Relu_branch_1_26
+block_3a_conv_2_branch_1_weight
+block_3a_conv_2_branch_1_bias</td><td>block_3a_conv_2_branch_1_27</td><td>FLOAT[1x256x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>27</td><td>BatchNormalization</td><td>block_3a_bn_2_branch_1</td><td>block_3a_conv_2_branch_1_27
+block_3a_bn_2_branch_1_scale
+block_3a_bn_2_branch_1_B
+block_3a_bn_2_branch_1_mean
+block_3a_bn_2_branch_1_var</td><td>block_3a_bn_2_branch_1_28</td><td>FLOAT[1x256x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>28</td><td>Add</td><td>add_3_branch_1</td><td>block_3a_bn_shortcut_branch_1_25
+block_3a_bn_2_branch_1_28</td><td>add_3_branch_1_29</td><td>FLOAT[1x256x17x30]</td><td></td></tr>
+<tr><td>29</td><td>Relu</td><td>activation_7/Relu_branch_1</td><td>add_3_branch_1_29</td><td>activation_7/Relu_branch_1_30</td><td>FLOAT[1x256x17x30]</td><td></td></tr>
+<tr><td>30</td><td>Conv</td><td>block_4a_conv_1_branch_1</td><td>activation_7/Relu_branch_1_30
+block_4a_conv_1_branch_1_weight
+block_4a_conv_1_branch_1_bias</td><td>block_4a_conv_1_branch_1_31</td><td>FLOAT[1x512x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>31</td><td>Conv</td><td>block_4a_conv_shortcut_branch_1</td><td>activation_7/Relu_branch_1_30
+block_4a_conv_shortcut_branch_1_weight
+block_4a_conv_shortcut_branch_1_bias</td><td>block_4a_conv_shortcut_branch_1_32</td><td>FLOAT[1x512x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[1, 1]</td></tr>
+<tr><td>32</td><td>BatchNormalization</td><td>block_4a_bn_1_branch_1</td><td>block_4a_conv_1_branch_1_31
+block_4a_bn_1_branch_1_scale
+block_4a_bn_1_branch_1_B
+block_4a_bn_1_branch_1_mean
+block_4a_bn_1_branch_1_var</td><td>block_4a_bn_1_branch_1_33</td><td>FLOAT[1x512x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>33</td><td>BatchNormalization</td><td>block_4a_bn_shortcut_branch_1</td><td>block_4a_conv_shortcut_branch_1_32
+block_4a_bn_shortcut_branch_1_scale
+block_4a_bn_shortcut_branch_1_B
+block_4a_bn_shortcut_branch_1_mean
+block_4a_bn_shortcut_branch_1_var</td><td>block_4a_bn_shortcut_branch_1_34</td><td>FLOAT[1x512x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>34</td><td>Relu</td><td>activation_8/Relu_branch_1</td><td>block_4a_bn_1_branch_1_33</td><td>activation_8/Relu_branch_1_35</td><td>FLOAT[1x512x17x30]</td><td></td></tr>
+<tr><td>35</td><td>Conv</td><td>block_4a_conv_2_branch_1</td><td>activation_8/Relu_branch_1_35
+block_4a_conv_2_branch_1_weight
+block_4a_conv_2_branch_1_bias</td><td>block_4a_conv_2_branch_1_36</td><td>FLOAT[1x512x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>36</td><td>BatchNormalization</td><td>block_4a_bn_2_branch_1</td><td>block_4a_conv_2_branch_1_36
+block_4a_bn_2_branch_1_scale
+block_4a_bn_2_branch_1_B
+block_4a_bn_2_branch_1_mean
+block_4a_bn_2_branch_1_var</td><td>block_4a_bn_2_branch_1_37</td><td>FLOAT[1x512x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>37</td><td>Add</td><td>add_4_branch_1</td><td>block_4a_bn_shortcut_branch_1_34
+block_4a_bn_2_branch_1_37</td><td>add_4_branch_1_38</td><td>FLOAT[1x512x17x30]</td><td></td></tr>
+<tr><td>38</td><td>Relu</td><td>activation_9/Relu_branch_1</td><td>add_4_branch_1_38</td><td>activation_9/Relu_branch_1_39</td><td>FLOAT[1x512x17x30]</td><td></td></tr>
+<tr><td>39</td><td>Conv</td><td>conv2d_bbox_branch_1</td><td>activation_9/Relu_branch_1_39
+conv2d_bbox_branch_1_weight
+conv2d_bbox_branch_1_bias</td><td>conv2d_bbox_branch_1_40</td><td>FLOAT[1x12x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[1, 1]</td></tr>
+<tr><td>40</td><td>Conv</td><td>conv2d_cov_branch_1</td><td>activation_9/Relu_branch_1_39
+conv2d_cov_branch_1_weight
+conv2d_cov_branch_1_bias</td><td>conv2d_cov_branch_1_41</td><td>FLOAT[1x3x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[1, 1]</td></tr>
+<tr><td>41</td><td>Sigmoid</td><td>conv2d_cov/Sigmoid_branch_1</td><td>conv2d_cov_branch_1_41</td><td>conv2d_cov/Sigmoid_branch_1_42</td><td>FLOAT[1x3x17x30]</td><td></td></tr>
+<tr><td>42</td><td>Conv</td><td>conv1_branch_2</td><td>data
+conv1_branch_2_weight
+conv1_branch_2_bias</td><td>conv1_branch_2_43</td><td>FLOAT[1x48x135x240]</td><td>group=1; kernel_shape=[7, 7]; pads=[3, 3, 3, 3]; strides=[2, 2]</td></tr>
+<tr><td>43</td><td>BatchNormalization</td><td>bn_conv1_branch_2</td><td>conv1_branch_2_43
+bn_conv1_branch_2_scale
+bn_conv1_branch_2_B
+bn_conv1_branch_2_mean
+bn_conv1_branch_2_var</td><td>bn_conv1_branch_2_44</td><td>FLOAT[1x48x135x240]</td><td>epsilon=1e-05</td></tr>
+<tr><td>44</td><td>Relu</td><td>activation_1/Relu_branch_2</td><td>bn_conv1_branch_2_44</td><td>activation_1/Relu_branch_2_45</td><td>FLOAT[1x48x135x240]</td><td></td></tr>
+<tr><td>45</td><td>Conv</td><td>block_1a_conv_1_branch_2</td><td>activation_1/Relu_branch_2_45
+block_1a_conv_1_branch_2_weight
+block_1a_conv_1_branch_2_bias</td><td>block_1a_conv_1_branch_2_46</td><td>FLOAT[1x64x68x120]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[2, 2]</td></tr>
+<tr><td>46</td><td>Conv</td><td>block_1a_conv_shortcut_branch_2</td><td>activation_1/Relu_branch_2_45
+block_1a_conv_shortcut_branch_2_weight
+block_1a_conv_shortcut_branch_2_bias</td><td>block_1a_conv_shortcut_branch_2_47</td><td>FLOAT[1x64x68x120]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[2, 2]</td></tr>
+<tr><td>47</td><td>BatchNormalization</td><td>block_1a_bn_1_branch_2</td><td>block_1a_conv_1_branch_2_46
+block_1a_bn_1_branch_2_scale
+block_1a_bn_1_branch_2_B
+block_1a_bn_1_branch_2_mean
+block_1a_bn_1_branch_2_var</td><td>block_1a_bn_1_branch_2_48</td><td>FLOAT[1x64x68x120]</td><td>epsilon=1e-05</td></tr>
+<tr><td>48</td><td>BatchNormalization</td><td>block_1a_bn_shortcut_branch_2</td><td>block_1a_conv_shortcut_branch_2_47
+block_1a_bn_shortcut_branch_2_scale
+block_1a_bn_shortcut_branch_2_B
+block_1a_bn_shortcut_branch_2_mean
+block_1a_bn_shortcut_branch_2_var</td><td>block_1a_bn_shortcut_branch_2_49</td><td>FLOAT[1x64x68x120]</td><td>epsilon=1e-05</td></tr>
+<tr><td>49</td><td>Relu</td><td>activation_2/Relu_branch_2</td><td>block_1a_bn_1_branch_2_48</td><td>activation_2/Relu_branch_2_50</td><td>FLOAT[1x64x68x120]</td><td></td></tr>
+<tr><td>50</td><td>Conv</td><td>block_1a_conv_2_branch_2</td><td>activation_2/Relu_branch_2_50
+block_1a_conv_2_branch_2_weight
+block_1a_conv_2_branch_2_bias</td><td>block_1a_conv_2_branch_2_51</td><td>FLOAT[1x64x68x120]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>51</td><td>BatchNormalization</td><td>block_1a_bn_2_branch_2</td><td>block_1a_conv_2_branch_2_51
+block_1a_bn_2_branch_2_scale
+block_1a_bn_2_branch_2_B
+block_1a_bn_2_branch_2_mean
+block_1a_bn_2_branch_2_var</td><td>block_1a_bn_2_branch_2_52</td><td>FLOAT[1x64x68x120]</td><td>epsilon=1e-05</td></tr>
+<tr><td>52</td><td>Add</td><td>add_1_branch_2</td><td>block_1a_bn_shortcut_branch_2_49
+block_1a_bn_2_branch_2_52</td><td>add_1_branch_2_53</td><td>FLOAT[1x64x68x120]</td><td></td></tr>
+<tr><td>53</td><td>Relu</td><td>activation_3/Relu_branch_2</td><td>add_1_branch_2_53</td><td>activation_3/Relu_branch_2_54</td><td>FLOAT[1x64x68x120]</td><td></td></tr>
+<tr><td>54</td><td>Conv</td><td>block_2a_conv_1_branch_2</td><td>activation_3/Relu_branch_2_54
+block_2a_conv_1_branch_2_weight
+block_2a_conv_1_branch_2_bias</td><td>block_2a_conv_1_branch_2_55</td><td>FLOAT[1x128x34x60]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[2, 2]</td></tr>
+<tr><td>55</td><td>Conv</td><td>block_2a_conv_shortcut_branch_2</td><td>activation_3/Relu_branch_2_54
+block_2a_conv_shortcut_branch_2_weight
+block_2a_conv_shortcut_branch_2_bias</td><td>block_2a_conv_shortcut_branch_2_56</td><td>FLOAT[1x128x34x60]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[2, 2]</td></tr>
+<tr><td>56</td><td>BatchNormalization</td><td>block_2a_bn_1_branch_2</td><td>block_2a_conv_1_branch_2_55
+block_2a_bn_1_branch_2_scale
+block_2a_bn_1_branch_2_B
+block_2a_bn_1_branch_2_mean
+block_2a_bn_1_branch_2_var</td><td>block_2a_bn_1_branch_2_57</td><td>FLOAT[1x128x34x60]</td><td>epsilon=1e-05</td></tr>
+<tr><td>57</td><td>BatchNormalization</td><td>block_2a_bn_shortcut_branch_2</td><td>block_2a_conv_shortcut_branch_2_56
+block_2a_bn_shortcut_branch_2_scale
+block_2a_bn_shortcut_branch_2_B
+block_2a_bn_shortcut_branch_2_mean
+block_2a_bn_shortcut_branch_2_var</td><td>block_2a_bn_shortcut_branch_2_58</td><td>FLOAT[1x128x34x60]</td><td>epsilon=1e-05</td></tr>
+<tr><td>58</td><td>Relu</td><td>activation_4/Relu_branch_2</td><td>block_2a_bn_1_branch_2_57</td><td>activation_4/Relu_branch_2_59</td><td>FLOAT[1x128x34x60]</td><td></td></tr>
+<tr><td>59</td><td>Conv</td><td>block_2a_conv_2_branch_2</td><td>activation_4/Relu_branch_2_59
+block_2a_conv_2_branch_2_weight
+block_2a_conv_2_branch_2_bias</td><td>block_2a_conv_2_branch_2_60</td><td>FLOAT[1x128x34x60]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>60</td><td>BatchNormalization</td><td>block_2a_bn_2_branch_2</td><td>block_2a_conv_2_branch_2_60
+block_2a_bn_2_branch_2_scale
+block_2a_bn_2_branch_2_B
+block_2a_bn_2_branch_2_mean
+block_2a_bn_2_branch_2_var</td><td>block_2a_bn_2_branch_2_61</td><td>FLOAT[1x128x34x60]</td><td>epsilon=1e-05</td></tr>
+<tr><td>61</td><td>Add</td><td>add_2_branch_2</td><td>block_2a_bn_shortcut_branch_2_58
+block_2a_bn_2_branch_2_61</td><td>add_2_branch_2_62</td><td>FLOAT[1x128x34x60]</td><td></td></tr>
+<tr><td>62</td><td>Relu</td><td>activation_5/Relu_branch_2</td><td>add_2_branch_2_62</td><td>activation_5/Relu_branch_2_63</td><td>FLOAT[1x128x34x60]</td><td></td></tr>
+<tr><td>63</td><td>Conv</td><td>block_3a_conv_1_branch_2</td><td>activation_5/Relu_branch_2_63
+block_3a_conv_1_branch_2_weight
+block_3a_conv_1_branch_2_bias</td><td>block_3a_conv_1_branch_2_64</td><td>FLOAT[1x160x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[2, 2]</td></tr>
+<tr><td>64</td><td>Conv</td><td>block_3a_conv_shortcut_branch_2</td><td>activation_5/Relu_branch_2_63
+block_3a_conv_shortcut_branch_2_weight
+block_3a_conv_shortcut_branch_2_bias</td><td>block_3a_conv_shortcut_branch_2_65</td><td>FLOAT[1x128x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[2, 2]</td></tr>
+<tr><td>65</td><td>BatchNormalization</td><td>block_3a_bn_1_branch_2</td><td>block_3a_conv_1_branch_2_64
+block_3a_bn_1_branch_2_scale
+block_3a_bn_1_branch_2_B
+block_3a_bn_1_branch_2_mean
+block_3a_bn_1_branch_2_var</td><td>block_3a_bn_1_branch_2_66</td><td>FLOAT[1x160x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>66</td><td>BatchNormalization</td><td>block_3a_bn_shortcut_branch_2</td><td>block_3a_conv_shortcut_branch_2_65
+block_3a_bn_shortcut_branch_2_scale
+block_3a_bn_shortcut_branch_2_B
+block_3a_bn_shortcut_branch_2_mean
+block_3a_bn_shortcut_branch_2_var</td><td>block_3a_bn_shortcut_branch_2_67</td><td>FLOAT[1x128x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>67</td><td>Relu</td><td>activation_6/Relu_branch_2</td><td>block_3a_bn_1_branch_2_66</td><td>activation_6/Relu_branch_2_68</td><td>FLOAT[1x160x17x30]</td><td></td></tr>
+<tr><td>68</td><td>Conv</td><td>block_3a_conv_2_branch_2</td><td>activation_6/Relu_branch_2_68
+block_3a_conv_2_branch_2_weight
+block_3a_conv_2_branch_2_bias</td><td>block_3a_conv_2_branch_2_69</td><td>FLOAT[1x128x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>69</td><td>BatchNormalization</td><td>block_3a_bn_2_branch_2</td><td>block_3a_conv_2_branch_2_69
+block_3a_bn_2_branch_2_scale
+block_3a_bn_2_branch_2_B
+block_3a_bn_2_branch_2_mean
+block_3a_bn_2_branch_2_var</td><td>block_3a_bn_2_branch_2_70</td><td>FLOAT[1x128x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>70</td><td>Add</td><td>add_3_branch_2</td><td>block_3a_bn_shortcut_branch_2_67
+block_3a_bn_2_branch_2_70</td><td>add_3_branch_2_71</td><td>FLOAT[1x128x17x30]</td><td></td></tr>
+<tr><td>71</td><td>Relu</td><td>activation_7/Relu_branch_2</td><td>add_3_branch_2_71</td><td>activation_7/Relu_branch_2_72</td><td>FLOAT[1x128x17x30]</td><td></td></tr>
+<tr><td>72</td><td>Conv</td><td>block_4a_conv_1_branch_2</td><td>activation_7/Relu_branch_2_72
+block_4a_conv_1_branch_2_weight
+block_4a_conv_1_branch_2_bias</td><td>block_4a_conv_1_branch_2_73</td><td>FLOAT[1x64x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>73</td><td>Conv</td><td>block_4a_conv_shortcut_branch_2</td><td>activation_7/Relu_branch_2_72
+block_4a_conv_shortcut_branch_2_weight
+block_4a_conv_shortcut_branch_2_bias</td><td>block_4a_conv_shortcut_branch_2_74</td><td>FLOAT[1x88x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[1, 1]</td></tr>
+<tr><td>74</td><td>BatchNormalization</td><td>block_4a_bn_1_branch_2</td><td>block_4a_conv_1_branch_2_73
+block_4a_bn_1_branch_2_scale
+block_4a_bn_1_branch_2_B
+block_4a_bn_1_branch_2_mean
+block_4a_bn_1_branch_2_var</td><td>block_4a_bn_1_branch_2_75</td><td>FLOAT[1x64x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>75</td><td>BatchNormalization</td><td>block_4a_bn_shortcut_branch_2</td><td>block_4a_conv_shortcut_branch_2_74
+block_4a_bn_shortcut_branch_2_scale
+block_4a_bn_shortcut_branch_2_B
+block_4a_bn_shortcut_branch_2_mean
+block_4a_bn_shortcut_branch_2_var</td><td>block_4a_bn_shortcut_branch_2_76</td><td>FLOAT[1x88x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>76</td><td>Relu</td><td>activation_8/Relu_branch_2</td><td>block_4a_bn_1_branch_2_75</td><td>activation_8/Relu_branch_2_77</td><td>FLOAT[1x64x17x30]</td><td></td></tr>
+<tr><td>77</td><td>Conv</td><td>block_4a_conv_2_branch_2</td><td>activation_8/Relu_branch_2_77
+block_4a_conv_2_branch_2_weight
+block_4a_conv_2_branch_2_bias</td><td>block_4a_conv_2_branch_2_78</td><td>FLOAT[1x88x17x30]</td><td>group=1; kernel_shape=[3, 3]; pads=[1, 1, 1, 1]; strides=[1, 1]</td></tr>
+<tr><td>78</td><td>BatchNormalization</td><td>block_4a_bn_2_branch_2</td><td>block_4a_conv_2_branch_2_78
+block_4a_bn_2_branch_2_scale
+block_4a_bn_2_branch_2_B
+block_4a_bn_2_branch_2_mean
+block_4a_bn_2_branch_2_var</td><td>block_4a_bn_2_branch_2_79</td><td>FLOAT[1x88x17x30]</td><td>epsilon=1e-05</td></tr>
+<tr><td>79</td><td>Add</td><td>add_4_branch_2</td><td>block_4a_bn_shortcut_branch_2_76
+block_4a_bn_2_branch_2_79</td><td>add_4_branch_2_80</td><td>FLOAT[1x88x17x30]</td><td></td></tr>
+<tr><td>80</td><td>Relu</td><td>activation_9/Relu_branch_2</td><td>add_4_branch_2_80</td><td>activation_9/Relu_branch_2_81</td><td>FLOAT[1x88x17x30]</td><td></td></tr>
+<tr><td>81</td><td>Conv</td><td>output_bbox_branch_2</td><td>activation_9/Relu_branch_2_81
+output_bbox_branch_2_weight
+output_bbox_branch_2_bias</td><td>output_bbox_branch_2_82</td><td>FLOAT[1x4x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[1, 1]</td></tr>
+<tr><td>82</td><td>Conv</td><td>output_cov_branch_2</td><td>activation_9/Relu_branch_2_81
+output_cov_branch_2_weight
+output_cov_branch_2_bias</td><td>output_cov_branch_2_83</td><td>FLOAT[1x1x17x30]</td><td>group=1; kernel_shape=[1, 1]; pads=[0, 0, 0, 0]; strides=[1, 1]</td></tr>
+<tr><td>83</td><td>Sigmoid</td><td>output_cov/Sigmoid_branch_2</td><td>output_cov_branch_2_83</td><td>output_cov/Sigmoid_branch_2_84</td><td>FLOAT[1x1x17x30]</td><td></td></tr>
+<tr><td>84</td><td>Concat</td><td>concatenate_cov</td><td>output_cov/Sigmoid_branch_2_84
+conv2d_cov/Sigmoid_branch_1_42</td><td>concatenate_cov_concat_85</td><td>FLOAT[1x4x17x30]</td><td>axis=1</td></tr>
+<tr><td>85</td><td>Identity</td><td>concatenate_cov_identity</td><td>concatenate_cov_concat_85</td><td>conv2d_cov/Sigmoid</td><td>FLOAT[1x4x17x30]</td><td></td></tr>
+<tr><td>86</td><td>Concat</td><td>concatenate_bbox</td><td>output_bbox_branch_2_82
+conv2d_bbox_branch_1_40</td><td>concatenate_bbox_concat_86</td><td>FLOAT[1x16x17x30]</td><td>axis=1</td></tr>
+<tr><td>87</td><td>Identity</td><td>concatenate_bbox_identity</td><td>concatenate_bbox_concat_86</td><td>conv2d_bbox</td><td>FLOAT[1x16x17x30]</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+  </main>
+  <script>
+    function filterRows() {
+      const input = document.getElementById('nodeFilter');
+      const table = document.getElementById('nodeTable');
+      if (!input || !table) return;
+      const q = input.value.toLowerCase();
+      for (const row of table.tBodies[0].rows) {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      }
+    }
+  </script>
+</body>
+</html>

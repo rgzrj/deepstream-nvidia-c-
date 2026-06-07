@@ -1,0 +1,13 @@
+{
+  "model_path": "../fd_lpd_model/fd_lpd.onnx",
+  "output_dir": "output",
+  "detailed": false,
+  "generate_both_modes": true,
+  "main_html": "fd_lpd_architecture.html",
+  "simple_html": "fd_lpd_architecture_simple.html",
+  "detailed_html": "fd_lpd_architecture_detailed.html",
+  "summary_markdown": "fd_lpd_summary.md",
+  "diagram_svg": "fd_lpd_architecture.svg",
+  "page_title": "FD-LPD ONNX Neural Network Architecture",
+  "max_label_length": 72
+}
